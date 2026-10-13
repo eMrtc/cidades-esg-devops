@@ -36,7 +36,7 @@ services:
       - "8080:8080"
     environment:
       MONGO_URI: mongodb://mongodb-prod:27017/cidades_esg_prod
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET obrigatorio - configure o segredo no ambiente}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       PORT: 8080
