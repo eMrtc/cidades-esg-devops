@@ -104,6 +104,14 @@
             <version>4.23.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Compatibilidade entre Apache Commons Compress e Lang -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
