@@ -40,8 +40,9 @@ jobs:
       - name: ⚙️ Garantir Permissão no Maven Wrapper
         run: chmod +x ./mvnw
 
-      - name: 🏗️ Compilar Projeto (Build)
-        run: ./mvnw clean compile -B
+      - name: Compilar Projeto (Build)
+        run: |
+        bash ./mvnw clean compile --batch-mode
 
       - name: 🧪 Executar Testes Automatizados
         run: ./mvnw test -B
