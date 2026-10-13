@@ -5,7 +5,7 @@
 
 ---
 
-## 📋 Sumário
+## Sumário
 
 1. [Como executar localmente com Docker](#como-executar-localmente-com-docker)
 2. [Pipeline CI/CD](#pipeline-cicd)
@@ -17,7 +17,7 @@
 
 ---
 
-## 🐳 Como executar localmente com Docker
+## Como executar localmente com Docker
 
 Siga os passos abaixo para inicializar o ambiente completo (Banco de Dados NoSQL MongoDB 7.0 + Backend Spring Boot 3.3.5) com um único comando:
 
@@ -83,7 +83,7 @@ docker compose down
 
 ---
 
-## 🚀 Pipeline CI/CD
+## Pipeline CI/CD
 
 O projeto utiliza o **GitHub Actions** (`.github/workflows/ci-cd.yml`) para automação completa do ciclo de vida da aplicação.
 
@@ -127,7 +127,7 @@ graph TD
 
 ---
 
-## 📦 Containerização
+## Containerização
 
 A containerização utiliza o padrão **Multi-Stage Build**, separando a etapa de compilação da imagem de execução final:
 
@@ -189,7 +189,7 @@ ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
 
 ---
 
-## ☸️ Orquestração com Docker Compose e Kubernetes
+## Orquestração com Docker Compose e Kubernetes
 
 ### 1. Docker Compose
 * **Desenvolvimento (`docker-compose.yml`):** Backend :8080 + MongoDB :27017, rede `esg-network`.
@@ -203,7 +203,7 @@ ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
 
 ---
 
-## 📸 Prints do funcionamento
+## Prints do funcionamento
 
 >**Guia para Captura de Evidências Reais:**
 > Execute os comandos abaixo em seu terminal e anexe as capturas de tela nos locais indicados:
@@ -239,7 +239,7 @@ curl -i http://localhost:8080/actuator/health
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+## Tecnologias utilizadas
 
 | Categoria | Tecnologia / Stack | Finalidade |
 |---|---|---|
@@ -255,14 +255,14 @@ curl -i http://localhost:8080/actuator/health
 
 ---
 
-## ✅ Checklist de entrega (obrigatório)
+## Checklist de entrega (obrigatório)
 
 | Item | OK |
 |---|:---:|
-| Projeto compactado em .ZIP com estrutura organizada | ☑ |
-| Dockerfile funcional | ☑ |
-| docker-compose.yml ou arquivos Kubernetes | ☑ |
-| Pipeline com etapas de build, teste e deploy | ☑ |
-| README.md com instruções e prints | ☑ |
-| Documentação técnica com evidências (PDF ou PPT) | ☑ |
-| Deploy realizado nos ambientes staging e produção | ☑ |
+| Projeto compactado em .ZIP com estrutura organizada | Concluído |
+| Dockerfile funcional | Concluído |
+| docker-compose.yml ou arquivos Kubernetes | Concluído |
+| Pipeline com etapas de build, teste e deploy | Concluído |
+| README.md com instruções e prints | Concluído |
+| Documentação técnica com evidências (PDF ou PPT) | Concluído |
+| Deploy realizado nos ambientes staging e produção | Concluído |

@@ -23,21 +23,21 @@ jobs:
   # 1. ETAPA DE BUILD E TESTES AUTOMATIZADOS (CI)
   # ==============================================================
   build-and-test:
-    name: 🔨 Build & Testes Automatizados (JUnit)
+    name: Build & Testes Automatizados (JUnit)
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout do Repositório
+      - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: ☕ Configurar JDK 21 (Eclipse Temurin)
+      - name: Configurar JDK 21 (Eclipse Temurin)
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      - name: ⚙️ Garantir Permissão no Maven Wrapper
+      - name: Garantir Permissão no Maven Wrapper
         run: chmod +x ./mvnw
 
       - name: Compilar Projeto (Build)
@@ -46,7 +46,7 @@ jobs:
       - name: Executar Testes Automatizados
         run: mvn test -B
 
-      - name: 📊 Publicar Relatório de Testes (Surefire Reports)
+      - name: Publicar Relatório de Testes (Surefire Reports)
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -57,25 +57,25 @@ jobs:
   # 2. ETAPA DE CONTAINERIZAÇÃO (BUILD & PUSH DOCKER)
   # ==============================================================
   docker-build-push:
-    name: 🐳 Build & Push da Imagem Docker
+    name: Build & Push da Imagem Docker
     runs-on: ubuntu-latest
     needs: build-and-test
 
     steps:
-      - name: 📥 Checkout do Repositório
+      - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: 🔧 Configurar Docker Buildx
+      - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔑 Login no GitHub Container Registry
+      - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🏷️ Metadados e Tags Semânticas Docker
+      - name: Metadados e Tags Semânticas Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -85,7 +85,7 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
 
-      - name: 📦 Build e Push da Imagem
+      - name: Build e Push da Imagem
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -99,7 +99,7 @@ jobs:
   # 3. ETAPA DE DEPLOY AUTOMATIZADO - AMBIENTE DE STAGING
   # ==============================================================
   deploy-staging:
-    name: 🚀 Deploy Automatizado - STAGING
+    name: Deploy Automatizado - STAGING
     runs-on: ubuntu-latest
     needs: docker-build-push
     environment:
@@ -108,32 +108,32 @@ jobs:
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
 
     steps:
-      - name: 📥 Checkout do Repositório
+      - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: 🌐 Executar Provisionamento em STAGING (Porta 8081)
+      - name: Executar Provisionamento em STAGING (Porta 8081)
         run: |
           echo "=========================================================="
-          echo "🚀 Provisionando Ambiente de STAGING (Homologação)"
+          echo "Provisionando Ambiente de STAGING (Homologação)"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
           docker compose -f docker-compose.staging.yml down || true
           docker compose -f docker-compose.staging.yml up -d --build
 
-      - name: 🩺 Smoke Test & Healthcheck Real em Staging
+      - name: Smoke Test & Healthcheck Real em Staging
         run: |
-          echo "🔍 Aguardando backend subir na porta 8081..."
+          echo "Aguardando backend subir na porta 8081..."
           for i in {1..30}; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/actuator/health || true)
             if [ "$STATUS" = "200" ]; then
-              echo "✅ Healthcheck Staging OK! Status HTTP 200 recebido."
+              echo "Healthcheck Staging OK! Status HTTP 200 recebido."
               curl -s http://localhost:8081/actuator/health
               exit 0
             fi
             echo "Tentativa $i/30: Backend ainda inicializando (Status: $STATUS)..."
             sleep 3
           done
-          echo "❌ Falha no Healthcheck do ambiente de Staging!"
+          echo "Falha no Healthcheck do ambiente de Staging!"
           docker compose -f docker-compose.staging.yml logs
           exit 1
 
@@ -141,7 +141,7 @@ jobs:
   # 4. ETAPA DE DEPLOY AUTOMATIZADO - AMBIENTE DE PRODUÇÃO
   # ==============================================================
   deploy-production:
-    name: 🏆 Deploy Automatizado - PRODUÇÃO
+    name: Deploy Automatizado - PRODUÇÃO
     runs-on: ubuntu-latest
     needs: deploy-staging
     env:
@@ -152,32 +152,32 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: 📥 Checkout do Repositório
+      - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: 🚀 Executar Deploy em PRODUÇÃO (Porta 8080)
+      - name: Executar Deploy em PRODUÇÃO (Porta 8080)
         run: |
           echo "=========================================================="
-          echo "🏆 Provisionando Ambiente de PRODUÇÃO"
+          echo "Provisionando Ambiente de PRODUÇÃO"
           echo "Release Version: v1.0.0"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
           docker compose -f docker-compose.prod.yml down || true
           docker compose -f docker-compose.prod.yml up -d --build
 
-      - name: 🩺 Smoke Test & Healthcheck Real em Produção
+      - name: Smoke Test & Healthcheck Real em Produção
         run: |
-          echo "🔍 Aguardando backend de Produção responder na porta 8080..."
+          echo "Aguardando backend de Produção responder na porta 8080..."
           for i in {1..30}; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
             if [ "$STATUS" = "200" ]; then
-              echo "✅ Healthcheck Produção OK! Status HTTP 200 recebido."
+              echo "Healthcheck Produção OK! Status HTTP 200 recebido."
               curl -s http://localhost:8080/actuator/health
               exit 0
             fi
             echo "Tentativa $i/30: Backend Produção ainda inicializando (Status: $STATUS)..."
             sleep 3
           done
-          echo "❌ Falha no Healthcheck do ambiente de Produção!"
+          echo "Falha no Healthcheck do ambiente de Produção!"
           docker compose -f docker-compose.prod.yml logs
           exit 1

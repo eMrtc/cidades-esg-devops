@@ -5,7 +5,7 @@
 **Instituição de Ensino:**FIAP
 **Data:**Outubro de 2026
 
-### 👥 Integrantes do Grupo
+### Integrantes do Grupo
 * **Catarina Costa** — RM: [Inserir RM] — *DevOps Engineer & Tech Lead*
 * **[Nome do Integrante 2]** — RM: [Inserir RM] — *Backend Developer*
 * **[Nome do Integrante 3]** — RM: [Inserir RM] — *Cloud & Infrastructure*
@@ -193,10 +193,10 @@ $ curl -s -X POST http://localhost:8080/api/auth/login \
 
 | Item | OK |
 |---|:---:|
-| Projeto compactado em .ZIP com estrutura organizada | ☑ |
-| Dockerfile funcional | ☑ |
-| docker-compose.yml ou arquivos Kubernetes | ☑ |
-| Pipeline com etapas de build, teste e deploy | ☑ |
-| README.md com instruções e prints | ☑ |
-| Documentação técnica com evidências (PDF ou PPT) | ☑ |
-| Deploy realizado nos ambientes staging e produção | ☑ |
+| Projeto compactado em .ZIP com estrutura organizada | Concluído |
+| Dockerfile funcional | Concluído |
+| docker-compose.yml ou arquivos Kubernetes | Concluído |
+| Pipeline com etapas de build, teste e deploy | Concluído |
+| README.md com instruções e prints | Concluído |
+| Documentação técnica com evidências (PDF ou PPT) | Concluído |
+| Deploy realizado nos ambientes staging e produção | Concluído |
