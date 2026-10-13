@@ -42,7 +42,7 @@ jobs:
 
       - name: Compilar Projeto (Build)
         run: |
-        bash ./mvnw clean compile --batch-mode
+          bash ./mvnw clean compile --batch-mode
 
       - name: 🧪 Executar Testes Automatizados
         run: ./mvnw test -B
