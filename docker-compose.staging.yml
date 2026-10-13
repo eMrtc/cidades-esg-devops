@@ -1,0 +1,51 @@
+version: "3.9"
+
+# ============================================================
+# Docker Compose — Ambiente de STAGING (Homologação)
+# ============================================================
+
+services:
+  mongodb-staging:
+    image: mongo:7.0
+    container_name: esg-mongodb-staging
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: cidades_esg_staging
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_staging_data:/data/db
+    networks:
+      - esg-staging-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: esg-backend-staging
+    restart: always
+    depends_on:
+      mongodb-staging:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      MONGO_URI: mongodb://mongodb-staging:27017/cidades_esg_staging
+      JWT_SECRET: ${JWT_SECRET:-stagingChaveSuperSecretaCidadesESG2026}
+      JWT_EXPIRATION_MS: 3600000
+      PORT: 8080
+      ENVIRONMENT: staging
+    networks:
+      - esg-staging-net
+
+networks:
+  esg-staging-net:
+    driver: bridge
+
+volumes:
+  mongo_staging_data:

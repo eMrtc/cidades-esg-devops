@@ -1,0 +1,21 @@
+# .dockerignore
+target/
+*.class
+*.jar
+*.war
+.git/
+.github/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+*.zip
+*.pdf
+*.pptx
+scripts/
+kubernetes/
+k8s/

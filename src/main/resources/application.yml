@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: cidades-esg-backend
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/cidades_esg}
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Configurações JWT
+jwt:
+  secret: ${JWT_SECRET:chaveSuperSecretaCidadesESGDevOps2026Minimo32Caracteres}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+# Integração com Google Gemini para Análise ESG
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  model: gemini-1.5-flash
+
+# Logs estruturados
+logging:
+  level:
+    br.com.cidades.esg: DEBUG
+    org.springframework.security: WARN

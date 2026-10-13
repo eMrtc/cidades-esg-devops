@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc-prod
+  namespace: cidades-esg-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment-prod
+  namespace: cidades-esg-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-prod
+  template:
+    metadata:
+      labels:
+        app: mongodb-prod
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:7.0
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc-prod
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service-prod
+  namespace: cidades-esg-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb-prod
+  ports:
+    - port: 27017
+      targetPort: 27017

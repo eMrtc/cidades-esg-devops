@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: cidades-esg-backend-test
+  data:
+    mongodb:
+      auto-index-creation: true
+
+jwt:
+  secret: testSecretKeyForUnitTestsMustBe256BitsLongMinimumRequiredForCidadesESG2026
+  expiration-ms: 3600000
+
+gemini:
+  api-key:
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  model: gemini-1.5-flash
+
+logging:
+  level:
+    br.com.cidades.esg: WARN
+    org.springframework.security: WARN
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.14

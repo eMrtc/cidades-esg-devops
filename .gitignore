@@ -1,0 +1,23 @@
+# Variaveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Arquivos gerados pelo Maven
+target/
+*.class
+
+# Configuracoes locais das IDEs
+.idea/
+*.iml
+.vscode/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Arquivos temporarios
+*.tmp

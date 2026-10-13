@@ -1,0 +1,55 @@
+version: "3.9"
+
+# ============================================================
+# Docker Compose — Projeto Cidades ESG Inteligentes (Local / Dev)
+# Sobe: MongoDB 7.0 + Backend Spring Boot 3.3
+# ============================================================
+
+services:
+  # ---- Banco de Dados NoSQL MongoDB ----
+  mongodb:
+    image: mongo:7.0
+    container_name: esg-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: cidades_esg
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_esg_data:/data/db
+    networks:
+      - esg-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Backend REST API (Java Spring Boot) ----
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: esg-backend
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/cidades_esg
+      JWT_SECRET: ${JWT_SECRET:-chaveSuperSecretaCidadesESGDevOps2026Minimo32Caracteres}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      PORT: 8080
+    networks:
+      - esg-network
+
+networks:
+  esg-network:
+    driver: bridge
+
+volumes:
+  mongo_esg_data:
+    driver: local
