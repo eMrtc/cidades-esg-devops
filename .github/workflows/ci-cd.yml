@@ -14,6 +14,10 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   # ==============================================================
   # 1. ETAPA DE BUILD E TESTES AUTOMATIZADOS (CI)
@@ -113,7 +117,7 @@ jobs:
           echo "🚀 Provisionando Ambiente de STAGING (Homologação)"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
-          docker compose -f docker-compose.staging.yml down -v || true
+          docker compose -f docker-compose.staging.yml down || true
           docker compose -f docker-compose.staging.yml up -d --build
 
       - name: 🩺 Smoke Test & Healthcheck Real em Staging
@@ -156,7 +160,7 @@ jobs:
           echo "Release Version: v1.0.0"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
-          docker compose -f docker-compose.prod.yml down -v || true
+          docker compose -f docker-compose.prod.yml down || true
           docker compose -f docker-compose.prod.yml up -d --build
 
       - name: 🩺 Smoke Test & Healthcheck Real em Produção
