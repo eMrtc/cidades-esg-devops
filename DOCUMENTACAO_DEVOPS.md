@@ -1,202 +1,152 @@
 # DOCUMENTAÇÃO TÉCNICA — DESAFIO DEVOPS
-## Projeto: Cidades ESG Inteligentes (Backend Spring Boot & MongoDB)
 
-**Fase:**Navegando pelo mundo DevOps
-**Instituição de Ensino:**FIAP
-**Data:**Outubro de 2026
+## Projeto: Cidades ESG Inteligentes
 
-### Integrantes do Grupo
-* **Catarina Costa** — RM: [Inserir RM] — *DevOps Engineer & Tech Lead*
-* **[Nome do Integrante 2]** — RM: [Inserir RM] — *Backend Developer*
-* **[Nome do Integrante 3]** — RM: [Inserir RM] — *Cloud & Infrastructure*
-* **[Nome do Integrante 4]** — RM: [Inserir RM] — *QA & Test Automation*
-* **[Nome do Integrante 5]** — RM: [Inserir RM] — *Security & Documentation*
+**Fase:** Navegando pelo mundo DevOps
+**Instituição:** FIAP
+**Data:** Outubro de 2026
+**Integrantes:** Enzo Martini e Catarina Costa
+**Repositório:** https://github.com/eMrtc/cidades-esg-devops
 
 ---
 
-## 1. Visão Geral do Projeto e Domínio ESG
+## 1. Visão geral do projeto
 
-O **Cidades ESG Inteligentes** é um ecossistema backend voltado para a governança e aceleração de sustentabilidade urbana, gestão de resíduos, mobilidade limpa e redução de pegada de carbono municipal.
+O **Cidades ESG Inteligentes** é uma aplicação backend voltada ao contexto de sustentabilidade e governança urbana. O projeto utiliza **Java 21**, **Spring Boot 3.3.5** e **MongoDB 7**, com autenticação baseada em JWT e funcionalidades relacionadas ao domínio ESG.
 
-A solução foi desenvolvida em **Java 21 com Spring Boot 3.3.5** e banco de dados **MongoDB 7.0 (NoSQL)**, estruturada com:
-* **Autenticação e RBAC (Role-Based Access Control):** Perfis `OPERADOR` (cidadão/técnico), `GESTOR` (gestor público de sustentabilidade) e `LIDER` (secretário municipal/diretor).
-* **Módulo de Metas Estratégicas ESG:** Cadastro de diretrizes alinhadas aos Objetivos de Desenvolvimento Sustentável (ODS da ONU).
-* **Módulo de Ideias e Iniciativas:** Coleta de propostas com análise de viabilidade automatizada via **Google Gemini 1.5 Flash**.
-* **Módulo de Projetos Urbanos ESG:** Acompanhamento de investimentos financeiros, ROI ecológico e metas de descarbonização.
-* **Módulo de Dashboard e Chat IA:** Indicadores consolidados e assistente inteligente de tomadas de decisão.
+O objetivo deste desafio é aplicar práticas de DevOps ao ciclo de vida da aplicação: compilação, testes, construção e publicação da imagem Docker e validação automatizada dos ambientes de homologação (*staging*) e produção.
 
 ---
 
-## 2. Descrição do Pipeline CI/CD
+## 2. Pipeline CI/CD
 
-### 2.1 Ferramenta e Arquitetura do Pipeline
-* **GitHub Actions** (`.github/workflows/ci-cd.yml`):
-  * **Build & Testes:** Compilação do código Java 21, resolução determinística de dependências e execução da suíte de testes JUnit 5.
-  * **Docker Build & Push:** Criação da imagem Docker Multi-Stage com envio ao GitHub Container Registry (`ghcr.io`).
-  * **Deploy Automatizado em STAGING:** Provisionamento e validação de saúde do ambiente de homologação (porta `8081`).
-  * **Deploy Automatizado em PRODUÇÃO:** Publicação de alta disponibilidade do ambiente de produção (porta `8080`) disparada exclusivamente na branch `main`.
+### 2.1 Ferramenta e fluxo
+
+O pipeline está configurado no **GitHub Actions**, no arquivo `.github/workflows/ci-cd.yml`, e foi validado na **execução #7 — “Melhoria de código e texto”**, concluída com sucesso.
 
 ```mermaid
 flowchart TD
-    subgraph CI [1. Integração Contínua - CI]
-        A[Git Push / PR] --> B[Job: Build & Testes]
-        B -->|Checkout & JDK 21| C[mvn clean compile]
-        C --> D[mvn test - JUnit 5]
-        D -->|Relatórios Gerados| E[Upload Surefire Reports]
-    end
-
-    subgraph CD_Package [2. Empacotamento Docker]
-        E --> F[Job: Docker Build & Push]
-        F --> G[Docker Buildx Multi-Stage]
-        G --> H[Tag & Push ghcr.io]
-    end
-
-    subgraph CD_Staging [3. Deploy Staging]
-        H --> I[Job: Deploy Staging]
-        I --> J[docker-compose.staging.yml / K8s Staging]
-        J --> K[Smoke Test & Healthcheck :8081]
-    end
-
-    subgraph CD_Prod [4. Deploy Produção]
-        K --> L[Job: Deploy Produção]
-        L --> M[docker-compose.prod.yml / K8s Prod]
-        M --> N[Healthcheck Final & Rollback Policy :8080]
-    end
+    A[Push no repositório] --> B[Build e testes automatizados]
+    B --> C[Build e push da imagem Docker no GHCR]
+    C --> D[Deploy de staging via Docker Compose]
+    D --> E[Healthcheck staging: HTTP 200]
+    E --> F[Deploy de produção via Docker Compose]
+    F --> G[Healthcheck produção: HTTP 200]
 ```
 
-### 2.2 Estratégia de Branches
-* **`develop`**: Dispara o ciclo de CI e o deploy contínuo em **Staging**.
-* **`main`**: Dispara a esteira completa promovendo o artefato testado para **Produção**.
+As quatro etapas verificadas foram:
+
+1. **Build e testes:** preparação do Java 21, compilação Maven e execução dos testes automatizados.
+2. **Docker Build & Push:** construção da imagem por meio do Docker e publicação no GitHub Container Registry (GHCR).
+3. **Staging:** provisionamento com `docker-compose.staging.yml` e verificação de `http://localhost:8081/actuator/health`.
+4. **Produção:** provisionamento com `docker-compose.prod.yml` e verificação de `http://localhost:8080/actuator/health`, após aprovação do estágio anterior.
+
+**Importante:** os ambientes foram iniciados e testados nos *runners temporários* do GitHub Actions. Os resultados comprovam o deploy e o funcionamento durante a execução do workflow, mas **não comprovam hospedagem pública contínua**. Os manifests Kubernetes presentes no projeto são configurações adicionais e não foram apresentados como um cluster efetivamente implantado.
+
+### 2.2 Evidência do pipeline
+
+![Execução 7 do GitHub Actions com quatro jobs aprovados](evidencias/pipeline-ci-cd.png)
 
 ---
 
-## 3. Containerização e Dockerfile
+## 3. Containerização
 
-### 3.1 Arquitetura Multi-Stage Build
+### 3.1 Dockerfile multi-stage
 
-```dockerfile
-# Estágio 1: Builder (Compilação e Resolução de Dependências)
-FROM eclipse-temurin:21-jdk-alpine AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
-COPY src ./src
-RUN ./mvnw clean package -DskipTests -B
+O `Dockerfile` utiliza dois estágios:
 
-# Estágio 2: Runner (Runtime Mínimo e Seguro)
-FROM eclipse-temurin:21-jre-alpine AS runner
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
-RUN chown -R appuser:appgroup /app
-USER appuser
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+- **Builder:** imagem `eclipse-temurin:21-jdk-alpine`, Maven Wrapper e código-fonte para produzir o JAR.
+- **Runner:** imagem `eclipse-temurin:21-jre-alpine`, contendo a aplicação compilada, sem ferramentas de build, com execução por usuário não-root.
+
+A configuração inclui a porta interna `8080`, variáveis de execução Java e healthcheck pelo Spring Boot Actuator.
+
+**Comandos utilizados no processo:**
+
+```bash
+docker compose up --build -d
+docker compose ps
+docker compose down
 ```
 
-### 3.2 Vantagens da Estratégia:
-* **Tamanho Enxuto:** Redução do container de ~650MB para ~180MB.
-* **Segurança:** Sem SDKs ou ferramentas de build no container final, rodando com usuário não-root `appuser`.
-* **Resiliência:** Healthcheck nativo com Spring Boot Actuator.
+Para ver o Dockerfile integral, consulte o arquivo `Dockerfile` na raiz do projeto. A construção da imagem foi validada pela etapa **Build & Push da Imagem Docker** no GitHub Actions.
 
 ---
 
-## 4. Orquestração Multi-Ambiente (Compose e Kubernetes)
+## 4. Orquestração dos serviços
 
-### 4.1 Matriz de Ambientes
+O projeto disponibiliza arquivos Docker Compose para três contextos:
 
-| Parâmetro | Desenvolvimento Local | Staging (Homologação) | Produção |
-|---|---|---|---|
-| **Orquestrador Compose** | `docker-compose.yml` | `docker-compose.staging.yml` | `docker-compose.prod.yml` |
-| **Namespace Kubernetes** | `default` | `cidades-esg-staging` | `cidades-esg-prod` |
-| **Porta da API** | `8080` | `8081` | `8080` (Ingress :80) |
-| **Porta MongoDB** | `27017` | `27018` | `27017` (ClusterIP) |
-| **Banco NoSQL** | `cidades_esg` | `cidades_esg_staging` | `cidades_esg_prod` |
-| **Rede Docker** | `esg-network` | `esg-staging-net` | `esg-prod-net` |
-| **Volume de Dados** | `mongo_esg_data` | `mongo_staging_data` | `mongo_prod_data` / PVC 10Gi |
+| Contexto | Arquivo | Porta HTTP da aplicação |
+|---|---|---|
+| Desenvolvimento | `docker-compose.yml` | Conforme mapeamento local do arquivo |
+| Staging | `docker-compose.staging.yml` | `8081` |
+| Produção | `docker-compose.prod.yml` | `8080` |
+
+O Compose organiza a aplicação Spring Boot e o MongoDB com configurações de ambiente, redes e volumes para persistência dos dados durante a vida útil do ambiente correspondente.
+
+A pasta `kubernetes/` contém manifests para staging e produção, incluindo recursos de configuração, armazenamento e implantação. **A execução automatizada demonstrada nesta entrega usa Docker Compose**, e não um cluster Kubernetes.
+
+O segredo JWT de produção é fornecido ao workflow por meio do secret do repositório `JWT_SECRET_PROD`, evitando publicar o valor real no código. O arquivo `.env` local não deve integrar o ZIP nem ser versionado.
 
 ---
 
-## 5. Evidências de Execução e Testes
+## 5. Evidências de execução
 
-### 5.1 Execução da Suíte de Testes Automatizados (JUnit 5 + MockMvc)
+### 5.1 Build e testes automatizados
+
+A suíte Maven/JUnit foi executada com o resultado confirmado de **6 testes, 0 falhas e 0 erros**, com **BUILD SUCCESS**. O job correspondente também concluiu com sucesso na execução #7 do GitHub Actions.
+
+Os relatórios dos testes podem ser consultados na etapa de build do workflow e nos artefatos correspondentes, quando disponíveis.
+
+### 5.2 Staging — porta 8081
+
+![Logs do staging com healthcheck HTTP 200 e status UP](evidencias/staging-healthcheck.png)
+
+A etapa **Smoke Test & Healthcheck Real em Staging** registrou:
+
 ```text
-[INFO] -------------------------------------------------------
-[INFO]  T E S T S
-[INFO] -------------------------------------------------------
-[INFO] Running br.com.cidades.esg.CidadesEsgIntegrationTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.312 s
-[INFO] Running br.com.cidades.esg.security.JwtUtilsTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.285 s
-[INFO] Running br.com.cidades.esg.service.AuthServiceTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.410 s
-[INFO]
-[INFO] Results:
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
+Healthcheck Staging OK! Status HTTP 200 recebido.
 ```
 
-### 5.2 Validação do Ambiente STAGING (Porta 8081)
-```bash
-$ curl -s http://localhost:8081/actuator/health | jq .
-{
-  "status": "UP",
-  "components": {
-    "db": {
-      "status": "UP",
-      "details": {
-        "database": "MongoDB",
-        "version": "7.0.5"
-      }
-    },
-    "diskSpace": {
-      "status": "UP"
-    }
-  }
-}
+A resposta do endpoint `/actuator/health` indicou `status: UP`, incluindo o componente MongoDB com status `UP`.
+
+### 5.3 Produção — porta 8080
+
+![Logs da produção com healthcheck HTTP 200 e status UP](evidencias/producao-healthcheck.png)
+
+A etapa **Smoke Test & Healthcheck Real em Produção** registrou:
+
+```text
+Healthcheck Produção OK! Status HTTP 200 recebido.
 ```
 
-### 5.3 Validação do Ambiente PRODUÇÃO (Porta 8080)
-```bash
-$ curl -s -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"gestor@cidades.esg.gov.br","senha":"Senha@Segura2026"}' | jq .
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tipo": "Bearer",
-  "id": "670ab34c123456",
-  "nome": "Gestor Sustentabilidade",
-  "email": "gestor@cidades.esg.gov.br",
-  "role": "GESTOR",
-  "expiresIn": 86400000
-}
-```
+A resposta do endpoint `/actuator/health` indicou `status: UP`, incluindo o componente MongoDB com status `UP`.
+
+**Escopo da evidência:** as capturas demonstram que os serviços responderam corretamente durante os deploys automatizados nos runners do GitHub Actions. Não foi apresentada evidência de disponibilidade pública permanente ou de um teste de login autenticado em produção.
 
 ---
 
-## 6. Desafios Encontrados e Como Foram Resolvidos
+## 6. Desafios encontrados e soluções
 
-1. **Correção do Maven Wrapper:** O arquivo `.mvn/wrapper/maven-wrapper.jar` continha originalmente uma distribuição pesada e corrompida. Foi substituído pelo JAR oficial do Maven Wrapper 3.3.2 (~61KB), restabelecendo a execução determinística do `./mvnw` em todos os ambientes e no Dockerfile.
-2. **Compatibilidade do Flapdoodle Embedded MongoDB:** Ajustada a dependência para `de.flapdoodle.embed.mongo.spring3x:4.23.0` compatível com Spring Boot 3.3.x, garantindo a execução de testes automatizados sem necessidade de um servidor MongoDB externo no runner de CI.
-3. **Adaptação Completa ao Tema Cidades ESG:** Todo o pacote base foi refatorado para `br.com.cidades.esg`, com regras de negócio, endpoints e DTOs refletindo metas ambientais, sociais e de governança urbana.
-4. **Isolamento de Staging e Produção:** Criação de configurações independentes no Docker Compose e Kubernetes com namespaces dedicados (`cidades-esg-staging` e `cidades-esg-prod`), evitando conflitos de portas e volumes de dados.
+1. **Execução do Maven Wrapper no Windows:** houve dificuldade de execução do wrapper no PowerShell. A execução local dos testes foi viabilizada com a chamada explícita à classe do Maven Wrapper via Java 21.
+2. **MongoDB embarcado nos testes:** a versão `6.0.14` foi configurada para o Flapdoodle no ambiente de testes, permitindo a execução da suíte.
+3. **Incompatibilidade entre dependências:** a falha de testes no CI relacionada a `commons-compress` e `commons-lang3` foi resolvida com a declaração explícita de `commons-lang3` versão `3.17.0` no escopo de testes.
+4. **Segredo JWT em produção:** o workflow inicialmente falhou ao iniciar o ambiente de produção sem o segredo necessário. Foi configurado o secret `JWT_SECRET_PROD` no GitHub Actions e o Compose passou a exigir o valor no ambiente.
+5. **Validação automatizada dos dois ambientes:** foram configurados deploys via Docker Compose e verificações de saúde que aguardam a inicialização da aplicação e exigem resposta HTTP 200.
+6. **Organização das evidências:** as capturas reais da execução #7 foram incluídas na pasta `evidencias/` e referenciadas pela documentação.
 
 ---
 
-## 7. Checklist de Entrega (Obrigatório)
+## 7. Checklist de entrega (obrigatório)
 
-| Item | OK |
+| Item | Situação |
 |---|:---:|
-| Projeto compactado em .ZIP com estrutura organizada | Concluído |
+| Projeto compactado em ZIP com estrutura organizada | Concluído |
 | Dockerfile funcional | Concluído |
-| docker-compose.yml ou arquivos Kubernetes | Concluído |
-| Pipeline com etapas de build, teste e deploy | Concluído |
-| README.md com instruções e prints | Concluído |
-| Documentação técnica com evidências (PDF ou PPT) | Concluído |
-| Deploy realizado nos ambientes staging e produção | Concluído |
+| `docker-compose.yml` ou arquivos Kubernetes | Concluído |
+| Pipeline com etapas de build, testes e deploy | Concluído |
+| README com instruções e prints | Concluído |
+| Documentação técnica com evidências (PDF ou PPT) | Concluído — `APRESENTACAO_DEVOPS_FINAL.pptx` com nove slides e três evidências reais |
+| Deploy realizado nos ambientes staging e produção | Concluído — staging e produção validados em runners temporários do GitHub Actions |
+
+**Antes da entrega:** revisar o conteúdo do ZIP atualizado com esta documentação e a apresentação `APRESENTACAO_DEVOPS_FINAL.pptx`. Não incluir `.env` com segredos, `.git/` ou `target/`.
